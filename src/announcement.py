@@ -1,5 +1,8 @@
+#!/usr/bin/python3
+
 import requests
-import PyPDF2
+import io
+from subprocess import Popen, PIPE
 from bs4 import BeautifulSoup as bs
 
 
@@ -11,28 +14,55 @@ class Announcement(object):
     download_prefix_pdf = "http://www.asx.com.au"
 
     def __init__(self, company_id, published_at, price_sens, information, link):
-        """Return a Announcement object."""
+        """
+        Return a Announcement object.
+        """
         self.company_id = company_id
         self.published_at = published_at
         self.price_sens = price_sens
         self.information = information
-        self.link = link
+        self.link = self.download_prefix_link + link
 
-    def get_link(self):
-        """Returns the link string for an announcement."""
-        return self.link
+    def __get_pdf_link(self):
+        """
+        Returns the pdf for this announcement
+        """
+        access_page = requests.get(self.link)
+        souped_access_page = bs(access_page.text, "lxml")
+        pdf_url_suffix = souped_access_page.find('input', {'name': 'pdfURL'}).get('value')
+        pdf_link = self.download_prefix_pdf + pdf_url_suffix
+        return pdf_link
 
-    def get_pdf(self):
-        """Returns the pdf for this announcement"""
-        access_page = requests.get(self.download_prefix_link + self.link)
-        souped_access_page = bs(access_page.text)
-        pdf_url_suffix = souped_access_page.find(name="pdfURL").attrs['value']
-        pdf = requests.get(self.download_prefix_pdf + pdf_url_suffix)
+    def __get_pdf(self):
+        """
+        Returns the pdf for this announcement.
+        """
+        pdf_link = self.__get_pdf_link()
+        pdf = io.BytesIO((requests.get(pdf_link)).content)
         return pdf
 
-    def get_text(self):
-        """Returns the announcement as a text string"""
-        pdf = self.get_pdf()
-        pdf_reader = PyPDF2.PdfFileReader(pdf)
-        return pdf_reader.flattenedPages.extractText()
+    def __get_raw(self):
+        """
+        Runs pdftotext to extract all text from a pdf. Needs to run on a system where
+        streams can be piped to pdftotext.
 
+        Requires pdftotext from Poppler: sudo apt-get install poppler-utils
+        """
+        pdf_link = self.__get_pdf_link()
+        process = Popen(["pdftotext", "-", "-"], stdin=PIPE, stdout=PIPE, stderr=PIPE, bufsize=-1)
+        process.stdin.write((requests.get(pdf_link)).content)
+        process.stdin.close()
+
+        result = str(process.stdout.read())
+        error = process.stderr.read()
+
+        return result
+
+    def get_text_list(self):
+        return
+
+    def get_price_result(self):
+        return 0
+
+    def is_sensitive(self):
+        return False
