@@ -62,7 +62,8 @@ class Announcement(object):
         return
 
     def get_price_result(self):
-        return 0
+        return 1
 
     def is_sensitive(self):
-        return False
+        """Returns true of false depending on whether or not this announcement is price sensitive or not"""
+        return True if self.price_sens == 1 else False
