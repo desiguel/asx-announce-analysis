@@ -1,6 +1,6 @@
 import netrc
 import MySQLdb
-
+import pandas as pd
 
 class Database(object):
     """
@@ -22,6 +22,14 @@ class Database(object):
         cursor = self.connection.cursor()
         return cursor
 
+    def get_connection(self):
+        """Return database connection."""
+        return self.connection
+
     def close_connection(self):
         self.connection.close()
         return
+
+    def get_query_result(self, sql):
+        df = pd.read_sql(sql, self.connection)
+        return df
