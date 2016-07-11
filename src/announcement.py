@@ -2,9 +2,9 @@
 
 import requests
 import io
-from subprocess import Popen, PIPE
 from bs4 import BeautifulSoup as bs
-
+from pdf_utilities import *
+from text_utilities import *
 
 class Announcement(object):
     """
@@ -22,6 +22,7 @@ class Announcement(object):
         self.price_sens = price_sens
         self.information = information
         self.link = self.download_prefix_link + link
+        self.pre_price_sens = 0  # Unknown at object construction time
 
     def __get_pdf_link(self):
         """
@@ -41,25 +42,16 @@ class Announcement(object):
         pdf = io.BytesIO((requests.get(pdf_link)).content)
         return pdf
 
-    def __get_raw(self):
-        """
-        Runs pdftotext to extract all text from a pdf. Needs to run on a system where
-        streams can be piped to pdftotext.
-
-        Requires pdftotext from Poppler: sudo apt-get install poppler-utils
-        """
-        pdf_link = self.__get_pdf_link()
-        process = Popen(["pdftotext", "-", "-"], stdin=PIPE, stdout=PIPE, stderr=PIPE, bufsize=-1)
-        process.stdin.write((requests.get(pdf_link)).content)
-        process.stdin.close()
-
-        result = str(process.stdout.read())
-        error = process.stderr.read()
-
-        return result
-
     def get_text_list(self):
-        return
+        """Returns the pdf of an announcement processed into a word list."""
+        pdf_link = self.__get_pdf_link()
+        raw = get_raw_text_from_link(self.__get_pdf_link())
+        text = clean_text(raw)
+        text = remove_stop_words(text)
+        word_list = tokenised(text)
+        word_list = stem_list(word_list)
+        text = remove_repeats(word_list)
+        return text
 
     def get_price_result(self):
         return 1
@@ -67,3 +59,5 @@ class Announcement(object):
     def is_sensitive(self):
         """Returns true of false depending on whether or not this announcement is price sensitive or not"""
         return True if self.price_sens == 1 else False
+
+
