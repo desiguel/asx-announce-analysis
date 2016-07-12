@@ -43,8 +43,9 @@ class Announcement(object):
         return pdf
 
     def get_text_list(self):
-        """Returns the pdf of an announcement processed into a word list."""
-        pdf_link = self.__get_pdf_link()
+        """
+        Returns the pdf of an announcement processed into a word list.
+        """
         raw = get_raw_text_from_link(self.__get_pdf_link())
         text = clean_text(raw)
         text = remove_stop_words(text)
@@ -54,6 +55,7 @@ class Announcement(object):
         return text
 
     def get_price_result(self):
+        # TODO
         return 1
 
     def is_sensitive(self):
