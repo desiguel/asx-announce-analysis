@@ -1,5 +1,5 @@
-import pandas as pd
 import datetime
+from announcement import *
 
 
 class Announcements(object):
@@ -56,6 +56,56 @@ class Announcements(object):
             last_sens_day_group = sens_day_group
 
         return
+
+    def get_test_data(self):
+        """
+        Condenses the announcements dataframe into a test data-set.
+        Assumes that the pre_sens_flag has already been added.
+        """
+
+        # An an array of arrays containing a word list and a label.
+        # So [[['one','two',...,'nine'], 0] .. ]
+        result = []
+        entry = []
+        last_group = 0
+        last_label = 0
+
+        # Remove all ps announcements from dataframe
+        announcements = self.df.drop(self.df[self.df.score == -1].index)
+
+        for index, row in announcements.iterrows():
+
+            # Initialise the 'last' values.
+            if index == 0:
+                last_group = row['pre_sens_counter']
+                last_label = row['price_sens']
+
+            # Set values for later processing.
+            group = row['pre_sens_counter']
+            label = row['price_sens']
+
+            # Get text data for this item.
+            announcement = Announcement(row['company_id'], row['published_at'], row['price_sens'],
+                                        row['price_sens'], row['link'])
+            text = announcement.get_text_list()
+
+            # Combine new data onto entry or push entry to array.
+            if group != last_group | label != last_label:
+                # push the last entry onto result
+                result.append(entry)
+                # clear out entry and start new one.
+                entry = [text, row['price_sens']]
+            else:
+                # Update
+                entry = [entry[0].extend(text), row['price_sens']]
+
+            last_group = group
+            last_label = label
+
+        # Update for last group
+        result.append(entry)
+
+        return result
 
     def get_announcements(self):
         self.__add_pre_sens_flag()

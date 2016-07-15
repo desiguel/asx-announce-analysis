@@ -22,3 +22,8 @@ def test_get_announcements():
     df = announcements.get_announcements()
     assert isinstance(df, pd.DataFrame)
 
+
+def test___generate_test_data():
+    """Testing the function output structure."""
+    # TODO
+    assert False

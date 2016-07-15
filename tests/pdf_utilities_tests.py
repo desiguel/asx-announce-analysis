@@ -4,10 +4,10 @@ from urllib import parse, request
 import os
 
 
-# TODO How to setup a mock pdf that can be read in as a stream?
-def test_get_raw_text_from_link():
+def test_get_raw_text_from_fs_link():
     """Testing the raw text from pdf link getter"""
-    fn_required_result = "one two three four five six seven eight nine"
-    fn_return = get_raw_text_from_link(".\\resources\\test_content_extract.pdf")
-    assert False
-
+    directory = os.path.dirname(os.path.realpath(__file__))
+    filename = os.path.join(directory, "../resources/test_content_extract.pdf")
+    fn_required_result = "b'one two three\\nfour five\\nsix\\n\\nseven\\n\\neight\\n\\nnine\\n\\n\\x0c'"
+    fn_return = get_raw_text_from_fs_link(filename)
+    assert fn_required_result == fn_return

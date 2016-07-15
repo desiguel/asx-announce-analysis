@@ -46,13 +46,13 @@ class Announcement(object):
         """
         Returns the pdf of an announcement processed into a word list.
         """
-        raw = get_raw_text_from_link(self.__get_pdf_link())
+        raw = get_raw_text_from_html_link(self.__get_pdf_link())
         text = clean_text(raw)
         text = remove_stop_words(text)
         word_list = tokenised(text)
         word_list = stem_list(word_list)
-        text = remove_repeats(word_list)
-        return text
+        # word_list = remove_repeats(word_list)
+        return word_list
 
     def get_price_result(self):
         # TODO
