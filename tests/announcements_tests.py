@@ -1,7 +1,24 @@
 import datetime
 import pandas as pd
+from pandas.util.testing import assert_frame_equal
 from announcements import *
+from announcement import *
 from database import *
+from nose import with_setup
+import os
+from unittest.mock import patch
+from urllib import parse, request
+
+
+directory = os.path.dirname(os.path.realpath(__file__))
+
+
+def setup():
+    """set up test fixtures"""
+
+
+def teardown():
+    """tear down test fixtures"""
 
 
 def test_announcements_constructor():
@@ -23,7 +40,46 @@ def test_get_announcements():
     assert isinstance(df, pd.DataFrame)
 
 
-def test___generate_test_data():
+def test_generate_test_data():
     """Testing the function output structure."""
-    # TODO
-    assert False
+    filename = os.path.join(directory, "../resources/testing/pre_sens_flag.csv")
+    df = pd.read_csv(filename)
+    announcements = Announcements(df)
+    assert isinstance(announcements, Announcements)
+
+
+def test_add_pre_sens_flag():
+    """Testing the addition of pre price sensitive flag."""
+    filename = os.path.join(directory, "../resources/testing/pre_sens_flag.csv")
+    df = pd.read_csv(filename)
+    df['published_at'] = pd.to_datetime(df['published_at'], format="%d/%m/%y")
+    df2 = df.copy(deep=True)
+    announcements = Announcements(df2)
+    announcements.add_pre_sens_flag()
+    assert_frame_equal(announcements.df, df)
+
+
+# @patch.object(Announcement, 'get_text_list', 'get_text_list("file")')
+def test_get_test_data():
+    """Testing the addition of pre price sensitive flag."""
+    # Build required function result
+    fn_required_result = []
+    fn_required_result.append([['three'], 0])
+    fn_required_result.append([['five', 'six'], 1])
+    fn_required_result.append([['seven'], 0])
+    fn_required_result.append([['ten'], 1])
+    fn_required_result.append([['eleven'], 0])
+
+    # Build fn_input
+    filename = os.path.join(directory, "../resources/testing/pre_sens_flag.csv")
+    df = pd.read_csv(filename)
+    df['published_at'] = pd.to_datetime(df['published_at'], format="%d/%m/%y")
+    file_prefix = directory + "/../resources/testing/pdfs/"
+    df['link'] = file_prefix + df['link']
+    df2 = df.copy(deep=True)
+    announcements = Announcements(df2)
+    fn_return = announcements.get_test_data("file")
+    print(fn_required_result)
+    print(fn_return)
+    assert fn_required_result == fn_return
+

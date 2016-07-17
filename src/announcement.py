@@ -21,14 +21,14 @@ class Announcement(object):
         self.published_at = published_at
         self.price_sens = price_sens
         self.information = information
-        self.link = self.download_prefix_link + link
+        self.link = link
         self.pre_price_sens = 0  # Unknown at object construction time
 
     def __get_pdf_link(self):
         """
         Returns the pdf for this announcement
         """
-        access_page = requests.get(self.link)
+        access_page = requests.get(self.download_prefix_link + self.link)
         souped_access_page = bs(access_page.text, "lxml")
         pdf_url_suffix = souped_access_page.find('input', {'name': 'pdfURL'}).get('value')
         pdf_link = self.download_prefix_pdf + pdf_url_suffix
@@ -42,16 +42,24 @@ class Announcement(object):
         pdf = io.BytesIO((requests.get(pdf_link)).content)
         return pdf
 
-    def get_text_list(self):
-        """
-        Returns the pdf of an announcement processed into a word list.
-        """
-        raw = get_raw_text_from_html_link(self.__get_pdf_link())
+    def __process_text(self, raw):
+        """Take some text, process it and return a list."""
         text = clean_text(raw)
         text = remove_stop_words(text)
         word_list = tokenised(text)
         word_list = stem_list(word_list)
         # word_list = remove_repeats(word_list)
+        return word_list
+
+    def get_text_list(self, source="html"):
+        """
+        Returns the pdf of an announcement processed into a word list.
+        """
+        if source == "html":
+            raw = get_raw_text_from_html_link(self.__get_pdf_link())
+        else:
+            raw = get_raw_text_from_fs_link(self.link)
+        word_list = self.__process_text(raw)
         return word_list
 
     def get_price_result(self):
