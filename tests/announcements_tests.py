@@ -77,9 +77,9 @@ def test_get_test_data():
     file_prefix = directory + "/../resources/testing/pdfs/"
     df['link'] = file_prefix + df['link']
     df2 = df.copy(deep=True)
+
     announcements = Announcements(df2)
     fn_return = announcements.get_test_data("file")
-    print(fn_required_result)
-    print(fn_return)
+
     assert fn_required_result == fn_return
 

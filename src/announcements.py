@@ -96,7 +96,7 @@ class Announcements(object):
             # Get text data for this item.
             announcement = Announcement(row['company_id'], row['published_at'], row['price_sens'],
                                         row['price_sens'], row['link'])
-            text = announcement.get_text_list(source)
+            text = announcement.get_text(source)
 
             # Combine new data onto entry or push entry to array.
             if group != last_group or label != last_label:

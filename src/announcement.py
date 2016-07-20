@@ -42,16 +42,7 @@ class Announcement(object):
         pdf = io.BytesIO((requests.get(pdf_link)).content)
         return pdf
 
-    def __process_text(self, raw):
-        """Take some text, process it and return a list."""
-        text = clean_text(raw)
-        text = remove_stop_words(text)
-        word_list = tokenised(text)
-        word_list = stem_list(word_list)
-        # word_list = remove_repeats(word_list)
-        return word_list
-
-    def get_text_list(self, source="html"):
+    def get_text(self, source="html"):
         """
         Returns the pdf of an announcement processed into a word list.
         """
@@ -59,8 +50,8 @@ class Announcement(object):
             raw = get_raw_text_from_html_link(self.__get_pdf_link())
         else:
             raw = get_raw_text_from_fs_link(self.link)
-        word_list = self.__process_text(raw)
-        return word_list
+
+        return raw
 
     def get_price_result(self):
         # TODO

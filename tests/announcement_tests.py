@@ -16,7 +16,7 @@ def test_announcement_get_text_list():
     """Testing the announcement get text list function."""
     announcement = Announcement(1045, datetime.datetime(2010, 10, 8, 0, 0), 1,
                                 'Network expansion in South East Queensland', '01106368')
-    announcement_text = announcement.get_text_list()
+    announcement_text = announcement.get_text()
     # TODO
     assert False
 

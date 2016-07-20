@@ -1,6 +1,12 @@
 import re
+import os
 from nltk.stem.porter import PorterStemmer
 from nltk.corpus import stopwords
+
+# Make stop word list available.
+directory = os.path.dirname(os.path.realpath(__file__))
+filename = os.path.join(directory, "../resources/stopwords/english")
+stop = [line.strip() for line in open(filename, 'r')]
 
 
 def clean_text(raw):
@@ -62,3 +68,5 @@ def remove_repeats(word_list):
             seen.add(item)
             result.append(item)
     return result
+
+
