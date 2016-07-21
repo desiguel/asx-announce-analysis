@@ -1,6 +1,6 @@
 import datetime
 from announcement import *
-
+import pandas as pd
 
 class Announcements(object):
     """
@@ -71,52 +71,30 @@ class Announcements(object):
 
         # An an array of arrays containing a word list and a label.
         # So [[['one','two',...,'nine'], 0] .. ]
-        result = []
-        entry = []
-        last_group = 0
-        last_label = 0
 
         # Make sure the pre sens flag has been populated.
         self.add_pre_sens_flag()
 
         # Remove all ps announcements from dataframe
         announcements = self.df.drop(self.df[self.df.pre_sens == -1].index)
+        announcements['text'] = ""
 
+        # Get text data for each announcement and add it to the frame.
         for index, row in announcements.iterrows():
 
-            # Initialise the 'last' values.
-            if index == 0:
-                last_group = row['pre_sens_counter']
-                last_label = row['price_sens']
-
-            # Set values for later processing.
-            group = row['pre_sens_counter']
-            label = row['pre_sens']
-
-            # Get text data for this item.
             announcement = Announcement(row['company_id'], row['published_at'], row['price_sens'],
                                         row['price_sens'], row['link'])
             text = announcement.get_text(source)
+            announcements.set_value(index, 'text', text)
 
-            # Combine new data onto entry or push entry to array.
-            if group != last_group or label != last_label:
-                # push the last entry onto result
-                if entry:
-                    result.append(entry)
-                # clear out entry and start new one.
-                entry = [text, row['pre_sens']]
-            else:
-                # Update
-                entry[0].extend(text)
-                # entry = [new_entry, row['pre_sens']]
+        # Group by and join
+        def f(x):
+            return pd.Series(dict(corpora=' '.join(x['text'])))
 
-            last_group = group
-            last_label = label
+        df = announcements.groupby(['pre_sens', 'pre_sens_counter']).apply(f).reset_index()
+        df = df.drop('pre_sens_counter', 1)
 
-        # Update for last group
-        result.append(entry)
-
-        return result
+        return df['corpora'].tolist(), df['pre_sens'].tolist()
 
     def get_announcements(self):
         self.add_pre_sens_flag()

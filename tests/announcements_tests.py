@@ -63,12 +63,8 @@ def test_add_pre_sens_flag():
 def test_get_test_data():
     """Testing the addition of pre price sensitive flag."""
     # Build required function result
-    fn_required_result = []
-    fn_required_result.append([['three'], 0])
-    fn_required_result.append([['five', 'six'], 1])
-    fn_required_result.append([['seven'], 0])
-    fn_required_result.append([['ten'], 1])
-    fn_required_result.append([['eleven'], 0])
+    fn_required_result_corpora = ['three', 'seven', 'eleven', 'five six', 'ten']
+    fn_required_result_pre_sens = [0, 0, 0, 1, 1]
 
     # Build fn_input
     filename = os.path.join(directory, "../resources/testing/pre_sens_flag.csv")
@@ -79,7 +75,13 @@ def test_get_test_data():
     df2 = df.copy(deep=True)
 
     announcements = Announcements(df2)
-    fn_return = announcements.get_test_data("file")
+    fn_return_corpora, fn_return_pre_sens = announcements.get_test_data("file")
 
-    assert fn_required_result == fn_return
+    print(fn_required_result_corpora)
+    print(fn_return_corpora)
+    print(fn_required_result_pre_sens)
+    print(fn_return_pre_sens)
+
+    assert fn_required_result_corpora == fn_return_corpora
+    assert fn_required_result_pre_sens == fn_return_pre_sens
 

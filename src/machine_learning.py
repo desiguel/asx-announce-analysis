@@ -22,9 +22,8 @@ class ML(object):
 
     def __process_text(raw):
         """Take some text, process it and return a list."""
-        text = clean_text(raw)
         # text = remove_stop_words(text)
-        word_list = tokenised(text)
+        word_list = tokenised(raw)
         word_list = stem_list(word_list)
         return word_list
 

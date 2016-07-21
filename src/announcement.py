@@ -50,8 +50,9 @@ class Announcement(object):
             raw = get_raw_text_from_html_link(self.__get_pdf_link())
         else:
             raw = get_raw_text_from_fs_link(self.link)
+        text = clean_text(raw)
 
-        return raw
+        return text
 
     def get_price_result(self):
         # TODO
