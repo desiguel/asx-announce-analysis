@@ -31,5 +31,6 @@ class Database(object):
         return
 
     def get_query_result(self, sql):
+        """Returns a dataframe containing the results of the query input."""
         df = pd.read_sql(sql, self.connection)
         return df
