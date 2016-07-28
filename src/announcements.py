@@ -63,6 +63,15 @@ class Announcements(object):
 
         return
 
+    def add_price_direction_indicator(self):
+        """
+        Adds a column to the dataframe that provides a indicator as to whether the announcement
+        is price positive or negative.
+        """
+        # TODO Build indicator.
+
+        return
+
     def get_test_data(self, source="html"):
         """
         Condenses the announcements dataframe into a test data-set.
@@ -95,8 +104,3 @@ class Announcements(object):
         df = df.drop('pre_sens_counter', 1)
 
         return df['corpora'].tolist(), df['pre_sens'].tolist()
-
-    def get_announcements(self):
-        self.add_pre_sens_flag()
-        # print(self.df)
-        return self.df

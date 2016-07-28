@@ -27,6 +27,10 @@ for stock in stock_codes['company_id']:
         # Load the test data for the announcements for this stock.
         df = announcements.get_test_data()
 
+        # TODO Split the dataset into training and testing sets.
+        # TODO Research on dealing with more features than observations.
+        # TODO Possibly reduce features by using PCA.
+
         skf = cross_validation.StratifiedKFold(df[''], n_folds=2)
 
         for train_index, test_index in skf:
@@ -34,18 +38,18 @@ for stock in stock_codes['company_id']:
             y_train, y_test = y[train_index], y[test_index]
 
 
-        # Split the dataset into training and testing sets.
+
         x_train = df.loc[:25000, 'review'].values
         y_train = df.loc[:25000, 'sentiment'].values
         x_test = df.loc[25000:, 'review'].values
         y_test = df.loc[25000:, 'sentiment'].values
 
 
-    # Run machine learning
+    # TODO Run machine learning
+    # TODO Probably use SVM
 
 
-
-    # Output results
+    # TODO Output results
 
 
 # End loop
