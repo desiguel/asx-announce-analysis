@@ -22,7 +22,6 @@ def clean_text(raw):
     text = re.sub('[\W]+', ' ', text)
     text = re.sub('(\\b[A-Za-z]{1,2}\\b)', ' ', text)
     text = " ".join(text.split())
-    # text = text.strip()
 
     return text
 
