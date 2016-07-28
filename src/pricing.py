@@ -1,18 +1,29 @@
 #!/usr/bin/python3
 
-from database import Database
+from database_mysql import DatabaseMySQL
 
 def __get_price_near(stock, datetime, greater_or_less_than):
     """Get the price immediately before or after a datetime that shows
     positive volume."""
     datetime_for_sql = datetime.strftime("%Y-%m-%d")
-    database = Database()
-    sql = "Select `last` from company_price_history where \
-           company_id = " + str(stock) + " and \
-           published_at " + greater_or_less_than + \
-          " STR_TO_DATE('" + datetime_for_sql + "','%Y-%m-%d') \
-           and volume > 0 order by published_at DESC LIMIT 1"
-    price = database.get_query_result(sql).iloc[0, 0]
+    database = DatabaseMySQL()
+
+    order_by = ""
+    if greater_or_less_than == "<":
+        order_by = "DESC"
+
+    sql = "Select close from company_price_volume_history where " + \
+          "company_id = " + str(stock) + " and " + \
+          "published_at " + greater_or_less_than + \
+          " STR_TO_DATE('" + datetime_for_sql + "','%Y-%m-%d')" + \
+          "and volume > 0 order by published_at " + order_by + " LIMIT 1"
+
+    df = database.get_query_df(sql)
+
+    # Default the return price to 0. Will only matter when a record is not returned.
+    price = 0
+    if not df.empty:
+        price = df.iloc[0, 0]
 
     return price
 

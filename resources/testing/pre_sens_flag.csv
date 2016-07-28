@@ -3,8 +3,8 @@ company_id,published_at,price_sens,information,link,pre_sens,pre_sens_counter
 1045,03/10/14,0,blah,two.pdf,-1,0
 1045,02/10/14,0,blah,three.pdf,0,1
 1045,01/10/14,1,blah,four.pdf,-1,0
-1045,11/09/14,0,blah,five.pdf,1,1
-1045,03/07/14,0,blah,six.pdf,1,1
+1045,11/09/14,0,blah,five.pdf,2,1
+1045,03/07/14,0,blah,six.pdf,2,1
 1045,12/06/14,0,blah,seven.pdf,0,2
 1045,07/06/14,1,blah,eight.pdf,-1,0
 1045,02/06/14,1,blah,nine.pdf,-1,0

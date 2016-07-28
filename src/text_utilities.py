@@ -17,10 +17,12 @@ def clean_text(raw):
     """
     raw = raw.lower()
     text = raw.replace('\\n', ' ')
+    text = text.replace('for personal use only', ' ')
     text = re.sub('[0-9]', ' ', text)
     text = re.sub('[\W]+', ' ', text)
     text = re.sub('(\\b[A-Za-z]{1,2}\\b)', ' ', text)
-    text = text.strip()
+    text = " ".join(text.split())
+    # text = text.strip()
 
     return text
 

@@ -2,7 +2,8 @@ import netrc
 import MySQLdb
 import pandas as pd
 
-class Database(object):
+
+class DatabaseMySQL(object):
     """
     Sets up the database connection for use by the application
     """
@@ -30,7 +31,20 @@ class Database(object):
         self.connection.close()
         return
 
-    def get_query_result(self, sql):
+    def get_query_df(self, sql):
         """Returns a dataframe containing the results of the query input."""
         df = pd.read_sql(sql, self.connection)
         return df
+
+    def set_query(self, sql):
+        """Returns a dataframe containing the results of the query input."""
+        cursor = self.connection.cursor()
+        cursor.execute(sql)
+        return
+
+    def get_query_result(self, sql):
+        """Returns a the results of the query input."""
+        # TODO test
+        cursor = self.connection.cursor()
+        cursor.execute(sql)
+        return cursor.fetchall()

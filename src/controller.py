@@ -1,56 +1,62 @@
 #!/usr/bin/python3
 
 from announcements import Announcements
-from database import Database
+from database_mysql import DatabaseMySQL
 from sklearn import cross_validation
 
-# Load list of asx stocks.
-database = Database()
-fn_result = database.get_query_result("")
-sql = "Select distinct company_id from company_announcements"
-stock_codes = database.get_query_result(sql)
 
-train_split = 0.6
-test_split = 1 - train_split
+def main():
 
-# Loop thru stock list
-for stock in stock_codes['company_id']:
-    if stock == 1045:  # temporary.. for testing only
+    # Load list of asx stocks.
+    database = DatabaseMySQL()
+    fn_result = database.get_query_df("")
+    sql = "Select distinct company_id from company_announcements"
+    stock_codes = database.get_query_df(sql)
 
-        # Load all announcements for this stock.
-        sql = "Select * from company_announcements where " \
-              "company_id = " + str(stock) + \
-              " order by published_at DESC"
-        temp = database.get_query_result(sql)
-        announcements = Announcements(temp)
+    train_split = 0.6
+    test_split = 1 - train_split
 
-        # Load the test data for the announcements for this stock.
-        df = announcements.get_test_data()
+    # Loop thru stock list
+    for stock in stock_codes['company_id']:
+        if stock == 1045:  # temporary.. for testing only
 
-        # TODO Split the dataset into training and testing sets.
-        # TODO Research on dealing with more features than observations.
-        # TODO Possibly reduce features by using PCA.
+            # Load all announcements for this stock.
+            sql = "Select * from company_announcements where " \
+                  "company_id = " + str(stock) + \
+                  " order by published_at DESC"
+            temp = database.get_query_df(sql)
+            announcements = Announcements(temp)
 
-        skf = cross_validation.StratifiedKFold(df[''], n_folds=2)
+            # Load the test data for the announcements for this stock.
+            df = announcements.get_test_data()
 
-        for train_index, test_index in skf:
-            X_train, X_test = X[train_index], X[test_index]
-            y_train, y_test = y[train_index], y[test_index]
+            # TODO Split the dataset into training and testing sets.
+            # TODO Research on dealing with more features than observations.
+            # TODO Possibly reduce features by using PCA.
 
+            skf = cross_validation.StratifiedKFold(df[''], n_folds=2)
 
-
-        x_train = df.loc[:25000, 'review'].values
-        y_train = df.loc[:25000, 'sentiment'].values
-        x_test = df.loc[25000:, 'review'].values
-        y_test = df.loc[25000:, 'sentiment'].values
+            for train_index, test_index in skf:
+                X_train, X_test = X[train_index], X[test_index]
+                y_train, y_test = y[train_index], y[test_index]
 
 
-    # TODO Run machine learning
-    # TODO Probably use SVM
+
+            x_train = df.loc[:25000, 'review'].values
+            y_train = df.loc[:25000, 'sentiment'].values
+            x_test = df.loc[25000:, 'review'].values
+            y_test = df.loc[25000:, 'sentiment'].values
 
 
-    # TODO Output results
+        # TODO Run machine learning
+        # TODO Probably use SVM
 
 
-# End loop
+        # TODO Output results
 
+
+    # End loop
+
+# Run Main.
+if __name__ == '__main__':
+    main()

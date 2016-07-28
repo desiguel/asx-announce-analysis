@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-from database import Database
+from database_mysql import DatabaseMySQL
 import pandas as pd
 
 
@@ -20,11 +20,11 @@ class Stock(object):
         :return: a string containing the ASX code
         """
         # Connect to the database and return cursor
-        database = Database()
+        database = DatabaseMySQL()
 
         # Query database.
         sql = "Select short_name from companies where id =" + str(self.company_id)
-        df = database.get_query_result(sql)
+        df = database.get_query_df(sql)
         code = df.iloc[0, 0]
 
         return code
@@ -35,11 +35,11 @@ class Stock(object):
         :return: A dataframe containing the price history.
         """
         # Connect to the database and return cursor
-        database = Database()
+        database = DatabaseMySQL()
 
         # Query database.
         sql = "Select published_at, `close` from company_price_volume_history  \
                where company_id =" + str(self.company_id)
-        df = database.get_query_result(sql)
+        df = database.get_query_df(sql)
 
         return df

@@ -63,3 +63,4 @@ class Announcement(object):
         return True if self.price_sens == 1 else False
 
 
+

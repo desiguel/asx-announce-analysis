@@ -1,6 +1,8 @@
 import datetime
 from announcement import *
+from pricing import *
 import pandas as pd
+
 
 class Announcements(object):
     """
@@ -13,6 +15,9 @@ class Announcements(object):
         """
         self.df = df.copy(deep=True)
         self.pre_sens_days = 91
+
+    def __iter__(self):
+        return iter(self.df)
 
     def add_pre_sens_flag(self):
         """
@@ -31,6 +36,7 @@ class Announcements(object):
         ps_counter = 0
         non_ps_counter = 1
         last_sens_day_group = 0
+        price_result_sign = 0
 
         for index, row in self.df.iterrows():
 
@@ -41,6 +47,7 @@ class Announcements(object):
                 self.df.set_value(index, 'pre_sens', -1)
                 last_ps_date = row['published_at']
                 ps_counter += 1
+                price_result_sign = get_price_sign(row['company_id'], last_ps_date)
                 continue
 
             days_since_last_ps = (last_ps_date - row['published_at']).days
@@ -48,7 +55,7 @@ class Announcements(object):
             early_group = (last_date - row['published_at']).days // self.pre_sens_days
 
             if sens_day_group == 0:
-                self.df.set_value(index, 'pre_sens', 1)
+                self.df.set_value(index, 'pre_sens', 1 + price_result_sign)
                 self.df.set_value(index, 'pre_sens_counter', ps_counter)
             else:
                 if early_group > 0:
@@ -60,15 +67,6 @@ class Announcements(object):
                     self.df.set_value(index, 'pre_sens_counter', non_ps_counter)
 
             last_sens_day_group = sens_day_group
-
-        return
-
-    def add_price_direction_indicator(self):
-        """
-        Adds a column to the dataframe that provides a indicator as to whether the announcement
-        is price positive or negative.
-        """
-        # TODO Build indicator.
 
         return
 
@@ -104,3 +102,8 @@ class Announcements(object):
         df = df.drop('pre_sens_counter', 1)
 
         return df['corpora'].tolist(), df['pre_sens'].tolist()
+
+    def get_announcements(self):
+        self.add_pre_sens_flag()
+        # print(self.df)
+        return self.df
