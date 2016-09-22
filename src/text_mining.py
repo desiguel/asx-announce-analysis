@@ -16,21 +16,34 @@ stock_codes = database.get_query_df(sql)
 data = []
 labels = []
 
+print("Retreived stock list...")
+
 # Loop thru stock list
 for stock in stock_codes['company_id']:
-    if stock == 1045:  # temporary.. for testing only TODO remove
 
-        # Load all announcements for this stock.
-        sql = "Select * from company_announcements where " \
-              "company_id = " + str(stock) + \
-              " order by published_at DESC"
-        temp = database.get_query_df(sql)
-        announcements = Announcements(temp)
+    print("Processing for.. " + str(stock))
 
-        # Load the test data for the announcements for this stock.
-        df = announcements.get_test_data()
-        data += df[0]
-        labels += df[1]
+    # Load all announcements for this stock.
+    sql = "Select * from company_announcements where raw <> '' and " \
+          "company_id = " + str(stock) + \
+          " order by published_at DESC"
+    temp = database.get_query_df(sql)
+    announcements = Announcements(temp)
+
+    print("Just queried DB.")
+
+    # Load the test data for the announcements for this stock.
+    df = announcements.get_test_data()
+
+    print(df)
+
+    data += df[0]
+    labels += df[1]
+
+    print("Calculated test data.")
+
+print(data[:10])
+print(labels[:10])
 
 # Splitting the data up into 60% training set, 20% cross-validation and 20% testing sets.
 x_train, x_cv_test, y_train, y_cv_test = cv.train_test_split(data, labels, test_size=0.40, random_state=1)
@@ -60,7 +73,7 @@ predicted = clf.predict(x_test_tfidf)
 
 print(metrics.classification_report(y_test, predicted))
 
-metrics.confusion_matrix(y_test, predicted)
+print(metrics.confusion_matrix(y_test, predicted))
 
 #
 # text_clf = Pipeline([('vect', CountVectorizer()),

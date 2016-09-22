@@ -9,7 +9,7 @@ class DatabaseMySQL(object):
     """
 
     # Define which host in the .netrc file to use
-    DBHOST = '192.168.23.3'
+    DBHOST = 'localhost'
     DBNAME = "streamin_equities"
 
     # Read from my .netrc file.

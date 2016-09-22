@@ -84,19 +84,10 @@ class Announcements(object):
 
         # Remove all ps announcements from dataframe
         announcements = self.df.drop(self.df[self.df.pre_sens == -1].index)
-        announcements['text'] = ""
-
-        # Get text data for each announcement and add it to the frame.
-        for index, row in announcements.iterrows():
-
-            announcement = Announcement(row['company_id'], row['published_at'], row['price_sens'],
-                                        row['price_sens'], row['link'])
-            text = announcement.get_text(source)
-            announcements.set_value(index, 'text', text)
 
         # Group by and join
         def f(x):
-            return pd.Series(dict(corpora=' '.join(x['text'])))
+            return pd.Series(dict(corpora=' '.join(x['raw'])))
 
         df = announcements.groupby(['pre_sens', 'pre_sens_counter']).apply(f).reset_index()
         df = df.drop('pre_sens_counter', 1)
