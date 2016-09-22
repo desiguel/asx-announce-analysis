@@ -30,8 +30,9 @@ def process_announcement(row):
 
 def main():
 
-    # Load all announcements for this stock.
+    # Load all announcements.
     sql = "Select * from company_announcements " + \
+          "WHERE published_at > STR_TO_DATE('2012-07-01','%Y-%m-%d') " + \
           "order by company_id, published_at DESC"
     announcements = database.get_query_result(sql)
 
