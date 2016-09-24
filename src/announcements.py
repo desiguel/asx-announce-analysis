@@ -85,6 +85,10 @@ class Announcements(object):
         # Remove all ps announcements from dataframe
         announcements = self.df.drop(self.df[self.df.pre_sens == -1].index)
 
+        # Dropping out the sensitive announcements will sometimes remove everything.
+        if len(announcements) == 0:
+            return [], []
+
         # Group by and join
         def f(x):
             return pd.Series(dict(corpora=' '.join(x['raw'])))

@@ -76,7 +76,7 @@ def test_get_test_data():
     df2 = df.copy(deep=True)
 
     announcements = Announcements(df2)
-    fn_return_corpora, fn_return_pre_sens = announcements.get_test_data("file")
+    fn_return_corpora, fn_return_pre_sens = announcements.get_test_data()
 
     print(fn_required_result_corpora)
     print(fn_return_corpora)
