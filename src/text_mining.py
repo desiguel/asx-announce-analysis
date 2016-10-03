@@ -5,6 +5,7 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.linear_model import SGDClassifier
 from sklearn import metrics
 from sklearn.grid_search import GridSearchCV
+from sklearn.svm import SVC
 from sklearn import cross_validation as cv
 import numpy as np
 from announcements import *
@@ -16,7 +17,7 @@ stock_codes = database.get_query_df(sql)
 data = []
 labels = []
 
-print("Retreived stock list..")
+print("Retrieved stock list..")
 
 # Loop thru stock list
 for stock in stock_codes['company_id']:
@@ -40,53 +41,39 @@ for stock in stock_codes['company_id']:
 
 print(labels)
 
+# Transform the data - vectorise and apply tf-idf.
+data = CountVectorizer().fit_transform(data)
+tf_idf_transform = TfidfTransformer(use_idf=True).fit(data)
+data = tf_idf_transform.transform(data)
+
 # Splitting the data up into 60% training set, 20% cross-validation and 20% testing sets.
 x_train, x_cv_test, y_train, y_cv_test = cv.train_test_split(data, labels, test_size=0.40, random_state=1)
 x_cv, x_test, y_cv, y_test = cv.train_test_split(x_cv_test, y_cv_test, test_size=0.50, random_state=1)
 
-# print("Running Naive Bayes classifier..")
-#
-# text_clf = Pipeline([('vect', CountVectorizer()),
-#                      ('tfidf', TfidfTransformer()),
-#                      ('clf', MultinomialNB()),
-#                      ])
-#
-# text_clf = text_clf.fit(x_train, y_train)
-#
-# predicted = text_clf.predict(x_test)
-# accuracy = np.mean(predicted == y_test)
-# print(accuracy)
-#
-print("Running SVM classifier..")
+# Test NB classifier
+print("Running Naive Bayes classifier..")
 
-text_clf = Pipeline([('vect', CountVectorizer()),
-                     ('tfidf', TfidfTransformer()),
-                     ('clf', SGDClassifier(loss='hinge', penalty='l2',
-                                           alpha=1e-3, n_iter=5, random_state=42)),
-                     ])
-text_clf = text_clf.fit(x_train, y_train)
-predicted = text_clf.predict(x_test)
+classifier_nb = MultinomialNB().fit(x_train, y_train)
+predicted = classifier_nb.predict(x_test)
 accuracy = np.mean(predicted == y_test)
-print(accuracy)
 
-print("SVM detailed results..\n")
+print("\nNaive Bayes model accuracy is: %0.2f" % accuracy)
+
+print("\nRunning SVM classifier and tuning using grid search..\n")
+
+# Grid search for best SVM parameters
+cost_range = [1e-9, 1e-7, 1e-5, 1e-3, 0.1, 1, 100]
+gamma_range = [1e-14, 1e-12, 1e-9, 1e-5, 0.1, 1]
+parameters = dict(gamma=gamma_range, C=cost_range)
+grid = GridSearchCV(SVC(), param_grid=parameters, cv=None, n_jobs=7)
+grid.fit(x_train, y_train)
+
+print("\nThe best SVM parameters are %s with a score of %0.2f"
+      % (grid.best_params_, grid.best_score_))
+
+predicted = grid.predict(x_test)
+accuracy = np.mean(predicted == y_test)
 
 print(metrics.classification_report(y_test, predicted))
 print(metrics.confusion_matrix(y_test, predicted))
 
-print("SVM tuning using grid search..\n")
-
-# TODO research how to use cost here.
-parameters = {'tfidf__use_idf': (True, False),
-              'clf__alpha': (0.1, 1e-2, 1e-3),
-              }
-
-gs_clf = GridSearchCV(text_clf, parameters, n_jobs=3)
-
-gs_clf = gs_clf.fit(x_cv, y_cv)
-
-best_parameters, score, _ = max(gs_clf.grid_scores_, key=lambda x: x[1])
-for param_name in sorted(parameters.keys()):
-    print("%s: %r" % (param_name, best_parameters[param_name]))
-
-print(score)
