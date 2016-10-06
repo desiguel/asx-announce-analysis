@@ -44,7 +44,6 @@ class DatabaseMySQL(object):
 
     def get_query_result(self, sql):
         """Returns a the results of the query input."""
-        # TODO test
         cursor = self.connection.cursor()
         cursor.execute(sql)
         return cursor.fetchall()

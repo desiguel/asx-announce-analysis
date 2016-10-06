@@ -19,8 +19,6 @@ def process_announcement(row):
                   "WHERE company_id = " + str(row[0]) + " and " + \
                   "published_at = STR_TO_DATE('" + row[1].strftime('%Y-%m-%d %H:%M:%S') + "','%Y-%m-%d %H:%i:%s')"
 
-            print(row[0], row[1])
-
             database.set_query(sql)
         except:
             pass
@@ -34,9 +32,10 @@ def main():
     sql = "Select * from company_announcements " + \
           "WHERE published_at > STR_TO_DATE('2012-07-01','%Y-%m-%d') " + \
           "order by company_id, published_at DESC"
+
     announcements = database.get_query_result(sql)
 
-    pool = Pool(processes=40)  # how much parallelism?
+    pool = Pool(processes=40)
     pool.map(process_announcement, announcements)
 
 

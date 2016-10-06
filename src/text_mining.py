@@ -2,7 +2,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.naive_bayes import MultinomialNB
-from sklearn.linear_model import SGDClassifier
+from sklearn.linear_model import LogisticRegression
 from sklearn import metrics
 from sklearn.grid_search import GridSearchCV
 from sklearn.svm import SVC
@@ -41,6 +41,8 @@ for stock in stock_codes['company_id']:
 
 print(labels)
 
+print("\nNumber of data points is: %0.2f" % len(labels))
+
 # Transform the data - vectorise and apply tf-idf.
 data = CountVectorizer().fit_transform(data)
 tf_idf_transform = TfidfTransformer(use_idf=True).fit(data)
@@ -58,6 +60,27 @@ predicted = classifier_nb.predict(x_test)
 accuracy = np.mean(predicted == y_test)
 
 print("\nNaive Bayes model accuracy is: %0.2f" % accuracy)
+
+print(metrics.classification_report(y_test, predicted))
+print(metrics.confusion_matrix(y_test, predicted))
+
+# Test Logistical Regression classifier
+print("Running Logistic Regression classifier and tuning using grid search..")
+
+# Grid search for best SVM parameters
+cost_range = [1e-3, 0.1, 1, 100]
+parameters = dict(C=cost_range)
+grid = GridSearchCV(LogisticRegression(), param_grid=parameters, cv=None, n_jobs=7)
+grid.fit(x_train, y_train)
+
+print("\nThe best LR parameters are %s with a score of %0.2f"
+      % (grid.best_params_, grid.best_score_))
+
+predicted = grid.predict(x_test)
+accuracy = np.mean(predicted == y_test)
+
+print(metrics.classification_report(y_test, predicted))
+print(metrics.confusion_matrix(y_test, predicted))
 
 print("\nRunning SVM classifier and tuning using grid search..\n")
 
