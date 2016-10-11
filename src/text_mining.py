@@ -1,6 +1,6 @@
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
-from sklearn.naive_bayes import MultinomialNB
+from sklearn.decomposition import PCA, IncrementalPCA
 from sklearn.linear_model import LogisticRegression
 from sklearn.neural_network import MLPClassifier
 from sklearn.svm import SVC
@@ -33,30 +33,26 @@ print(data.shape)
 
 # Dimensionality reduction
 print("\nRunning dimensionality reduction (custom)")
-data = feature_reduction(data, labels, 0.80)
+data = feature_reduction(data, labels, 0.85)
+
+print("\nData frame shape after dimensionality reduction (custom):")
+print(data.shape)
+
+# Dimensionality reduction
+print("\nRunning dimensionality reduction (PCA)")
+pca = IncrementalPCA(n_components=50, batch_size=100)
+pca.fit(data.toarray())
+data = pca.transform(data.toarray())
+
+print("\nPCA explained variance:")
+print(pca.explained_variance_ratio_)
+print(sum(pca.explained_variance_ratio_))
 
 print("\nData frame shape after dimensionality reduction (custom):")
 print(data.shape)
 
 # Splitting the data up into 60% training set, 20% cross-validation and 20% testing sets.
-x_train, x_cv_test, y_train, y_cv_test = cv.train_test_split(data, labels, test_size=0.40, random_state=1)
-x_cv, x_test, y_cv, y_test = cv.train_test_split(x_cv_test, y_cv_test, test_size=0.50, random_state=1)
-
-# # Test NB classifier
-# print("\nRunning Naive Bayes classifier..")
-# t0 = time()
-#
-# classifier_nb = MultinomialNB().fit(x_train, y_train)
-# predicted = classifier_nb.predict(x_test)
-# accuracy = np.mean(predicted == y_test)
-#
-# print("\nNaive Bayes model accuracy is: %0.2f" % accuracy)
-#
-# print(metrics.classification_report(y_test, predicted))
-# print(metrics.confusion_matrix(y_test, predicted))
-#
-# t1 = time()
-# print("\nNB classification time: {} sec".format(round((t1-t0), 2)))
+x_train, x_test, y_train, y_test = cv.train_test_split(data, labels, test_size=0.30, random_state=1)
 
 # Test Logistical Regression classifier
 print("\nRunning Logistic Regression classifier and tuning using grid search..")
@@ -65,7 +61,7 @@ t0 = time()
 # Grid search for best LR parameters
 cost_range = [1e-3, 0.1, 1, 100]
 parameters = dict(C=cost_range)
-grid = GridSearchCV(LogisticRegression(), param_grid=parameters, cv=None, n_jobs=7, verbose=3)
+grid = GridSearchCV(LogisticRegression(), param_grid=parameters, cv=2, n_jobs=7, verbose=3)
 grid.fit(x_train, y_train)
 
 print("\nThe best LR parameters are %s with a score of %0.2f"
@@ -84,10 +80,10 @@ print("\nRunning SVM classifier and tuning using grid search..\n")
 t0 = time()
 
 # Grid search for best SVM parameters
-cost_range = [1e-3, 0.1, 1, 10, 100, 1000]
-gamma_range = [1e-9, 1e-5, 0.1, 1, 10, 100]
+cost_range = [0.1, 1, 10, 100, 1000]
+gamma_range = [1e-5, 0.1, 1, 10, 100]
 parameters = dict(gamma=gamma_range, C=cost_range)
-grid = GridSearchCV(SVC(), param_grid=parameters, cv=None, n_jobs=7, verbose=3)
+grid = GridSearchCV(SVC(), param_grid=parameters, cv=2, n_jobs=7, verbose=3)
 grid.fit(x_train, y_train)
 
 print("\nThe best SVM parameters are %s with a score of %0.2f"
@@ -111,9 +107,12 @@ alpha_range = [1e-5, 1e-3, 0.1, 10, 100]
 layer1_range = [5, 10, 30, 40, 50]
 layer2_range = [5, 10, 30, 40, 50]
 layer3_range = [5, 10, 30, 40, 50]
+hidden_layer_range = np.vstack(np.meshgrid(layer1_range, layer2_range, layer3_range)).reshape(3, -1).T
+hidden_layer_range = [tuple(i) for i in hidden_layer_range]
+
 parameters = dict(solver=['lbfgs'], alpha=alpha_range,
-                  hidden_layer_sizes=(layer1_range, layer2_range, layer3_range), random_state=[1])
-grid = GridSearchCV(MLPClassifier(), param_grid=parameters, cv=None, n_jobs=7, verbose=3)
+                  hidden_layer_sizes=hidden_layer_range, random_state=[1])
+grid = GridSearchCV(MLPClassifier(), param_grid=parameters, cv=2, n_jobs=7, verbose=3)
 grid.fit(x_train, y_train)
 
 print("\nThe best MLP parameters are %s with a score of %0.2f"
