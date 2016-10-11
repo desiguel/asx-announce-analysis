@@ -2,6 +2,7 @@ import re
 import os
 from nltk.stem.porter import PorterStemmer
 from nltk.corpus import stopwords
+import numpy as np
 
 # Make stop word list available.
 directory = os.path.dirname(os.path.realpath(__file__))
@@ -71,3 +72,39 @@ def remove_repeats(word_list):
     return result
 
 
+def feature_reduction(data, labels, level):
+    """
+    Feature reduce a text data-set with three classes.
+    :param data: a tf-idf dataset
+    :param labels: data-set labels
+    :param level: the % cutoff
+    :return: reduced data-set
+    """
+    # Run 1 and 2 against the other one
+    temp_labels = np.array([-1 if (v == 1 or v == 2) else 1 for i, v in enumerate(labels)])
+
+    # Multiply through data
+    data_a = np.absolute(data.transpose().dot(temp_labels))
+    data_a_index = [i for i, v in enumerate(data_a) if v > level]
+
+    # Run 1 and 0 against the other one
+    temp_labels = np.array([-1 if (v == 1 or v == 0) else 1 for i, v in enumerate(labels)])
+
+    # Multiply through data
+    data_b = np.absolute(data.transpose().dot(temp_labels))
+    data_b_index = [i for i, v in enumerate(data_b) if v > level]
+
+    # Run 2 and 0 against the other one
+    temp_labels = np.array([-1 if (v == 0 or v == 2) else 1 for i, v in enumerate(labels)])
+
+    # Multiply through data
+    data_c = np.absolute(data.transpose().dot(temp_labels))
+    data_c_index = [i for i, v in enumerate(data_c) if v > level]
+
+    # Convert these separate lists to a set, then back to a list
+    results_list = [data_a_index, data_b_index, data_c_index]
+    data_index = list(set().union(*results_list))
+
+    data = data[:, data_index]
+
+    return data
