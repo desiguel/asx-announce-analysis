@@ -11,7 +11,7 @@ labels = []
 print("Retrieved stock list..")
 
 # Loop through stock list.
-for stock in [999,1000,1001,4,5,6,7,8,9,10,1045]: #stock_codes['company_id']:
+for stock in stock_codes['company_id']:
 
     print("Loading data for.. " + str(stock))
 
