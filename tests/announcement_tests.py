@@ -9,9 +9,6 @@ def test_announcement_constructor():
     assert isinstance(announcement, Announcement)
 
 
-# TODO How to test functions which obtain external data?
-# TODO Testing of private methods?
-
 def test_announcement_get_text_list():
     """Testing the announcement get text list function."""
     announcement = Announcement(1045, datetime.datetime(2010, 10, 8, 0, 0), 1,
@@ -26,8 +23,6 @@ def test_announcement_get_price_result():
     # TODO
     assert False
 
-
-# TODO Assert stacking ok?
 
 def test_announcement_is_sensitive():
     """Testing the announcement is_sensitive function."""
