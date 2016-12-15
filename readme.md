@@ -24,6 +24,10 @@ The following tasks were carried out as part of this work:
 * Predictive model build and test.
 * Result reporting.
 
+# Usage
+
+Analysis is run out of text_mining.py.
+
 # Last Words
 
 That fact that I'm publishing this code base should be telling as to the success of the predictive model :)
